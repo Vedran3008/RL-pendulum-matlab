@@ -20,7 +20,6 @@ n = 3.9;
 
 
 
-
 mdl = 'RL_nelinearni_model_njihala'; % Replace with your model's name
 load_system(mdl)
 isLoaded = bdIsLoaded('RL_nelinearni_model_njihala');
