@@ -20,6 +20,7 @@ n = 3.9;
 
 
 
+
 mdl = 'RL_nelinearni_model_njihala'; % Replace with your model's name
 load_system(mdl)
 isLoaded = bdIsLoaded('RL_nelinearni_model_njihala');
@@ -28,9 +29,10 @@ if isLoaded
 else
     disp('Model is not loaded');
 end
-observationInfo = rlNumericSpec([4 1], 'LowerLimit', -inf*ones(4,1), 'UpperLimit', inf*ones(4,1));
+% popravi limite
+observationInfo = rlNumericSpec([4 1], 'LowerLimit', -1000*ones(4,1), 'UpperLimit', 1000*ones(4,1));
 observationInfo.Name = 'states';
-actionInfo = rlNumericSpec([1 1], 'LowerLimit', -inf, 'UpperLimit', inf);
+actionInfo = rlNumericSpec([1 1], 'LowerLimit', -10, 'UpperLimit', 10);
 actionInfo.Name = 'power';
 blk = [mdl '/RLAgent']; % Replace 'RL Agent' with the name of your RL Agent block
 env = rlSimulinkEnv(mdl, blk, observationInfo, actionInfo);
@@ -48,6 +50,9 @@ agent = rlDDPGAgent(actor,critic,agentOpts);
 
 trainingOpts = rlTrainingOptions('MaxEpisodes',500,'MaxStepsPerEpisode',1000);
 trainResults = train(agent, env, trainingOpts);
+
+
+
 
 
 function actor = buildActor(actorLayerSizes,observationInfo,actionInfo,actorOpts)
