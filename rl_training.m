@@ -19,8 +19,6 @@ cm = 0.02559;
 n = 3.9;
 
 
-
-
 mdl = 'RL_nelinearni_model_njihala'; % Replace with your model's name
 load_system(mdl)
 isLoaded = bdIsLoaded('RL_nelinearni_model_njihala');
@@ -47,6 +45,9 @@ actor = buildActor(actorLayerSizes,observationInfo,actionInfo,actorOpts);
 agentOpts = rlDDPGAgentOptions('SampleTime',0.01,'TargetSmoothFactor',1e-3,...
     'ExperienceBufferLength',1e6,'DiscountFactor',0.99);
 agent = rlDDPGAgent(actor,critic,agentOpts);
+
+
+
 
 trainingOpts = rlTrainingOptions('MaxEpisodes',500,'MaxStepsPerEpisode',1000);
 trainResults = train(agent, env, trainingOpts);
@@ -92,4 +93,46 @@ function critic = buildCritic(criticLayerSizes,observationInfo,actionInfo,critic
     critic = rlQValueRepresentation(criticNetwork,observationInfo,actionInfo,'Observation',{'state'},'Action',{'action'},criticOpts);
 end
 
+function h = initRotatingPend()
+    % Length of the pendulum and hand (change to your values)
+    L_hand = 1;
+    L_pend = 1;  
+
+    % Create the plot objects
+    h.hand = line([0, 0], [0, 0], 'Color', 'k', 'LineWidth', 2);
+    h.pend = line([0, 0], [0, 0], 'Color', 'b', 'LineWidth', 2);
+    h.pivot = plot(0, 0, 'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'k');
+    h.handPivot = plot(0, 0, 'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'k');
+    h.pendEnd = plot(0, 0, 'ro', 'MarkerSize', 10, 'MarkerFaceColor', 'r');
+    
+    % Set the axis limits
+    xlim([-L_hand-L_pend-0.5, L_hand+L_pend+0.5]);
+    ylim([-L_hand-L_pend-0.5, L_hand+L_pend+0.5]);
+    
+    % Make the axes square
+    axis square;
+end
+
+function updateRotatingPend(h, theta, alpha)
+    % Length of the pendulum and hand (change to your values)
+    L_hand = 1;
+    L_pend = 1;  
+
+    % Position of the hand
+    x_hand = L_hand * cos(theta);
+    y_hand = L_hand * sin(theta);
+
+    % Position of the pendulum
+    x_pend = x_hand + L_pend * sin(alpha);
+    y_pend = y_hand - L_pend * cos(alpha);
+
+    % Update the plot objects
+    set(h.hand, 'XData', [0, x_hand], 'YData', [0, y_hand]);
+    set(h.pend, 'XData', [x_hand, x_pend], 'YData', [y_hand, y_pend]);
+    set(h.handPivot, 'XData', x_hand, 'YData', y_hand);
+    set(h.pendEnd, 'XData', x_pend, 'YData', y_pend);
+
+    % Update the figure
+    drawnow;
+end
 
